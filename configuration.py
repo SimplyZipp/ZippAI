@@ -7,6 +7,7 @@ class Fields:
     Token = 'token'
     Guilds = 'guilds'
     Owner = 'owner'
+    DevGuild = 'development_guild'
     MaxChannels = 'channels_per_guild'
 
 
@@ -14,6 +15,7 @@ class Configuration:
 
     DEFAULT_SETTINGS = {
         Fields.Owner: None,
+        Fields.DevGuild: None,
         Fields.Token: None,
         Fields.MaxChannels: 2,
         Fields.Guilds: {}
@@ -71,6 +73,9 @@ class Configuration:
 
         return str(channel_id) in self.options[Fields.Guilds][str(guild_id)]['channels']
 
+    def get_dev_guild(self) -> int:
+        return int(self.options[Fields.DevGuild])
+
     def load(self, filename: str) -> None:
         self.logger.info(f'Loading configuration from file: {filename}')
         try:
@@ -104,6 +109,7 @@ class Configuration:
             assert type(self.options[Fields.Owner]) == str, 'Owner ID needs to be a string'
             assert type(self.options[Fields.Token]) == str, 'Bot Token needs to be a string'
             assert type(self.options[Fields.Guilds]) == dict, 'Guild dictionary is not a dictionary'
+            assert type(self.options[Fields.DevGuild]) == str, 'Development guild needs to be a valid string ID'
         except AssertionError as ex:
             self.logger.critical(ex)
             raise

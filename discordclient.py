@@ -112,7 +112,7 @@ class Commands(commands.Cog):
         if str(interaction.user.id) != self.bot.config.options[Fields.Owner]:
             return
         if not globally:
-            guild = discord.Object(id='1231027350012035173')
+            guild = discord.Object(id=self.bot.config.get_dev_guild())
             self.bot.tree.copy_global_to(guild=guild)
             message = 'Synced!'
         else:
