@@ -8,7 +8,6 @@ import json
 class BasicMemory(AbstractMemory):
 
     def __init__(self):
-        # TODO: Filename argument de-synced between main usage and the json encoder
         # log order:
         #   0 - oldest log
         #   n - newest log

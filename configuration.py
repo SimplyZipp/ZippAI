@@ -46,19 +46,19 @@ class Configuration:
     def get_channels(self, guild_id: int) -> dict[str, Any]:
         return self.options[Fields.Guilds][str(guild_id)]['channels']
 
-    def add_channel(self, guild_id: int, channel_id: int) -> bool:
+    def add_channel(self, guild_id: int, channel_id: int) -> str:
         channels: dict[str, Any] = self.get_channels(guild_id)
 
         if len(channels.keys()) >= self.options[Fields.MaxChannels]:
-            return False
+            return 'Channel limit reached'
 
         # Check if the channel already exists
         if channels.get(str(channel_id), None) is not None:
-            return False
+            return 'Channel already exists'
 
         # For now, don't catch invalid guild_ids because I want to know if it fails
         channels[str(channel_id)] = {}
-        return True
+        return f'Channel set to ID {channel_id}'
 
     def remove_channel(self, guild_id: int, channel_id: int) -> bool:
         channels = self.get_channels(guild_id)

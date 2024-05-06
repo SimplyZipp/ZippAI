@@ -2,6 +2,7 @@ import asyncio
 import unittest
 from unittest import IsolatedAsyncioTestCase
 from testapi import TestAPI
+from memory.factories.factories import NoMemoryFactory, BasicMemoryFactory
 from memory.no_memory import NoMemory
 from discordclient import BasicMessage
 from texthandler import TextHandler
@@ -10,7 +11,7 @@ from texthandler import TextHandler
 class MessageResponses(IsolatedAsyncioTestCase):
 
     api = TestAPI()  # These two don't keep state
-    mem = NoMemory()
+    mem = NoMemoryFactory()
     handler: TextHandler | None = None  # This one does
 
     def setUp(self):

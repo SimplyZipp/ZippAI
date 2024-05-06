@@ -4,9 +4,6 @@ import logging
 
 
 class Client:
-    # TODO:
-    # Error handling for all the api calls. get_api and post_api raise for anything but 2XX,
-    # so
 
     ROUTE_MAX_CONTEXT_LENGTH = '/api/v1/config/max_context_length'
     ROUTE_MAX_LENGTH = '/api/v1/config/max_length'

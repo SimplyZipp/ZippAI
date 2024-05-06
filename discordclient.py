@@ -85,13 +85,13 @@ class Commands(commands.Cog):
         :param channel:
         :return: None
         """
-        if self.bot.config.add_channel(interaction.guild_id, channel.id):
-            await interaction.response.send_message(f'Channel set to ID {channel.id}', ephemeral=True)  # noqa
-        else:
-            await interaction.response.send_message('Channel limit reached', ephemeral=True)  # noqa
+        # TODO: Check for permissions
+        msg = self.bot.config.add_channel(interaction.guild_id, channel.id)
+        await interaction.response.send_message(msg, ephemeral=True)  # noqa
 
     @app_commands.command(name='remove-channel')
     async def remove_channel(self, interaction: discord.Interaction, channel: discord.TextChannel) -> None:
+        # TODO: Check for permissions
         if self.bot.config.remove_channel(interaction.guild_id, channel.id):
             await interaction.response.send_message(f'Removed channel ID {channel.id}', ephemeral=True)  # noqa
         else:
@@ -125,6 +125,8 @@ class Commands(commands.Cog):
 def get_intents() -> discord.flags.Intents:
     """
     Get the default intents that this bot needs to run.
+
+    Currently only requires message access.
 
     :return: The intents
     """

@@ -188,3 +188,4 @@ fabric.properties
 token.txt
 config.txt
 *.txt
+!requirements.txt

@@ -2,6 +2,7 @@ import logging
 from AbstractAPI import AbstractAPI
 from discordclient import BasicMessage
 from memory.memory import AbstractMemory, Message, Role
+from memory.factories.memoryfactory import MemoryFactory
 import asyncio
 import typing
 import json
@@ -10,10 +11,10 @@ from jsoncustom.memoryjson import MemoryEncoder, MemoryDecoder
 
 class TextHandler:
 
-    def __init__(self, api: AbstractAPI, memory_constructor: typing.Callable[[], AbstractMemory]):
+    def __init__(self, api: AbstractAPI, memory_factory: MemoryFactory):
         self.api = api
         self.logger = logging.getLogger(__name__)
-        self.memory: AbstractMemory = memory_constructor()
+        self.memory: AbstractMemory = memory_factory.make_memory()
         self.mem_lock = asyncio.Lock()
 
     async def respond(self, message: BasicMessage) -> str | None:

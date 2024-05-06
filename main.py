@@ -18,6 +18,7 @@ import logging
 from logging import handlers
 from configuration import Configuration, Fields
 from memory.basic_memory import BasicMemory
+from memory.factories.factories import BasicMemoryFactory
 
 import urllib.request
 import socket
@@ -37,9 +38,6 @@ def getToken() -> str:
     token_file.close()
     return t
 
-def memory_constructor() -> BasicMemory:
-    mem = BasicMemory()
-    return mem
 
 def main() -> None:
 
@@ -63,7 +61,9 @@ def main() -> None:
     #api = KoboldAPI()
     api = TestAPI()
 
-    handler = TextHandler(api, memory_constructor)
+    mem = BasicMemoryFactory()
+
+    handler = TextHandler(api, mem)
     handler.load()
 
     client = discordclient.DiscordClient(response_callable=handler.respond,
