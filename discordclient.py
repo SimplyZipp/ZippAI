@@ -1,11 +1,12 @@
 import logging
 import typing
+import asyncio
 from collections.abc import Callable
 import discord
 from discord.ext import commands
 from discord import app_commands
 from configuration import Configuration, Fields
-import asyncio
+from discordhandlers.abstracthandler import Handler, BasicMessage
 
 # Maybe set roles for command usage
 
@@ -14,26 +15,18 @@ import asyncio
 # If bot is removed from a guild, delete the guild config
 
 
-class BasicMessage:
-
-    def __init__(self, message: str, *, user: str, unique_id: str | None):
-        self.content = message
-        self.user = user
-        self.id = unique_id
-
-
 class DiscordClient(commands.Bot):
 
     def __init__(self,
                  *,
-                 response_callable: Callable[[BasicMessage], typing.Awaitable[str | None]] | None = None,
+                 handler: Handler | None = None,
                  config: Configuration,
                  intents: discord.flags.Intents = None,
                  **kwargs):
         super().__init__(command_prefix='$',
                          intents=get_intents() if intents is None else intents,  # Default intents if none specified
                          **kwargs)
-        self.response_call = response_callable
+        self.handler = handler
         self.logger = logging.getLogger(__name__)
         self.config = config
 
@@ -55,14 +48,14 @@ class DiscordClient(commands.Bot):
             self.logger.debug(f'Message from disallowed channel {message.channel.name}')
             return
 
-        if self.response_call is None:
-            self.logger.warning('No message response callable setup!')
+        if self.handler is None:
+            self.logger.warning('No handler setup!')
             return
         if message.content is None:
             self.logger.info('Message is None')
             return
-        msg = BasicMessage(message.content, user=message.author.name, unique_id=str(message.channel.id))
-        response = await self.response_call(msg)
+        msg = BasicMessage(message.content, user=message.author.name, unique_id=message.channel.id)
+        response = await self.handler.respond(msg)
         if response is not None:
             await message.channel.send(response)
 

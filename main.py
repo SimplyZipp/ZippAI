@@ -46,10 +46,10 @@ def main() -> None:
 
     mem = BasicMemoryFactory()
 
-    handler = TextHandler(api, mem)
+    handler = TextHandler(api, {}, default_factory=mem)
     handler.load()
 
-    client = discordclient.DiscordClient(response_callable=handler.respond,
+    client = discordclient.DiscordClient(handler=handler,
                                          config=config)
     try:
         client.run(getToken())
