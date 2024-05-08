@@ -1,5 +1,7 @@
 import logging
 import typing
+from typing import Any
+
 from memory.memory import AbstractMemory, Message
 
 
@@ -18,8 +20,9 @@ class NoMemory(AbstractMemory):
     def get_related_history(self, message: str) -> typing.List[int]:
         return []
 
-    def save(self) -> None:
+    def to_dict(self) -> dict[str, Any]:
         pass
 
-    def load(self) -> None:
+    @classmethod
+    def from_dict(cls, dictionary: dict[str, Any]) -> 'NoMemory':
         pass

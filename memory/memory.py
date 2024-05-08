@@ -36,7 +36,7 @@ class Message:
         return self.to_dict()
 
 
-class AbstractMemory:
+class AbstractMemory(ABC):
 
     @property
     @abstractmethod
