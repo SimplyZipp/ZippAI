@@ -2,10 +2,9 @@ import asyncio
 import unittest
 from unittest import IsolatedAsyncioTestCase
 from testapi import TestAPI
-from memory.factories.factories import NoMemoryFactory, BasicMemoryFactory
-from memory.no_memory import NoMemory
+from memory.factories.factories import NoMemoryFactory
 from discordclient import BasicMessage
-from texthandler import TextHandler
+from discordhandlers.texthandler import TextHandler
 
 
 class MessageResponses(IsolatedAsyncioTestCase):

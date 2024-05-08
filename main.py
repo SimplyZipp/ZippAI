@@ -5,31 +5,14 @@ import sys
 
 # No GUI, just logging to files.
 
-# Ideas:
-# Need system commands outside normal text
-# How to respond to messages more human-like? Order/timing
-# Track / summarize conversation history
-# Configure system role
 import discordclient
 from testapi import TestAPI
 from koboldapi import KoboldAPI
-from texthandler import TextHandler
+from discordhandlers.texthandler import TextHandler
 import logging
 from logging import handlers
 from configuration import Configuration, Fields
-from memory.basic_memory import BasicMemory
 from memory.factories.factories import BasicMemoryFactory
-
-import urllib.request
-import socket
-
-# Step 1: Basic functionality
-#   Get bot connected to discord
-#   read and respond to messages
-# Step 2: Hook up ChatGPT api
-#   basic question and answer queries
-#   no filtering / no rule or role setting
-# Step 3: Chat history
 
 
 def getToken() -> str:

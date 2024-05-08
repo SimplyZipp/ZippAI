@@ -1,19 +1,21 @@
 import logging
-from AbstractAPI import AbstractAPI
-from discordclient import BasicMessage
-from memory.memory import AbstractMemory, Message, Role
-from memory.factories.memoryfactory import MemoryFactory
 import asyncio
 import typing
 import json
 from jsoncustom.memoryjson import MemoryEncoder, MemoryDecoder
+from AbstractAPI import AbstractAPI
+from discordclient import BasicMessage
+from memory.memory import AbstractMemory, Message, Role
+from memory.factories.memoryfactory import MemoryFactory
+from discordhandlers.abstracthandler import Handler
 
 
-class TextHandler:
+class TextHandler(Handler):
 
     def __init__(self, api: AbstractAPI, memory_factory: MemoryFactory):
         self.api = api
         self.logger = logging.getLogger(__name__)
+        self.memory_factory_lookup = None
         self.memory: AbstractMemory = memory_factory.make_memory()
         self.mem_lock = asyncio.Lock()
 
@@ -87,7 +89,7 @@ class TextHandler:
 
     def save(self):
         self.logger.info('Saving memory')
-        f = open('basic_mem.txt', 'w')
+        f = open('../basic_mem.txt', 'w')
         f.write(json.dumps(self.memory, cls=MemoryEncoder, indent=2))
         f.close()
 
@@ -95,7 +97,7 @@ class TextHandler:
         self.logger.info('Loading memory...')
 
         try:
-            f = open('basic_mem.txt', 'r')
+            f = open('../basic_mem.txt', 'r')
             dump = f.read()
             temp: AbstractMemory = json.loads(dump, cls=MemoryDecoder)
             self.logger.debug(temp.to_dict())
