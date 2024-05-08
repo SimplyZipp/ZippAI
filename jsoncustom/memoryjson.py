@@ -1,5 +1,6 @@
 from memory.memory import AbstractMemory
 from memory.basic_memory import BasicMemory
+from memory.no_memory import NoMemory
 import json
 import typing
 from typing import Any
@@ -20,6 +21,7 @@ class MemoryDecoder(json.JSONDecoder):
     def __init__(self, *args, **kwargs):
         # Converts the '__class__' attribute from memory classes to their actual class.
         self.memory_type_mapping = {
+            'NoMemory': NoMemory,
             'BasicMemory': BasicMemory
         }
 

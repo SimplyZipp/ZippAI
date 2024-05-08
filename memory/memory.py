@@ -17,7 +17,7 @@ class Message:
         self.tokens = tokens
 
     def __str__(self):
-        return str(self.__dict__)
+        return str(self.__dict__())
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> 'Message':

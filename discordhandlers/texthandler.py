@@ -93,9 +93,11 @@ class TextHandler(Handler):
             self.logger.info('Messages saved to memory')
 
     def _mem_and_lock(self, memory_id: int) -> 'MemoryAndLock':
+        self.logger.debug(f'Accessing memory ID: {memory_id}')
         temp_id = str(memory_id)
         if temp_id not in self.memories:
             # Add a default memory
+            self.logger.debug('Creating new memory')
             self.memories[temp_id] = MemoryAndLock(self.default_factory.make_memory())
 
         return self.memories[temp_id]

@@ -21,8 +21,10 @@ class NoMemory(AbstractMemory):
         return []
 
     def to_dict(self) -> dict[str, Any]:
-        pass
+        return {
+            '__class__': 'NoMemory'
+        }
 
     @classmethod
     def from_dict(cls, dictionary: dict[str, Any]) -> 'NoMemory':
-        pass
+        return cls()

@@ -12,7 +12,7 @@ from discordhandlers.texthandler import TextHandler
 import logging
 from logging import handlers
 from configuration import Configuration, Fields
-from memory.factories.factories import BasicMemoryFactory
+from memory.factories.factories import BasicMemoryFactory, NoMemoryFactory
 
 
 def getToken() -> str:
