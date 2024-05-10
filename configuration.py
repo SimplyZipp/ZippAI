@@ -39,7 +39,6 @@ class Configuration:
 
         self.logger.info(f'Adding guild {guild_name} to config')
         self.options[Fields.Guilds][gid] = {
-            'allowed_channel': None,
             'name': guild_name,
             'channels': {}
         }

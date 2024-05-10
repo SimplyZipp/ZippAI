@@ -19,7 +19,7 @@ class DiscordClient(commands.Bot):
 
     def __init__(self,
                  *,
-                 handler: Handler | None = None,
+                 handler: Handler,
                  config: Configuration,
                  intents: discord.flags.Intents = None,
                  **kwargs):
@@ -48,13 +48,10 @@ class DiscordClient(commands.Bot):
             self.logger.debug(f'Message from disallowed channel {message.channel.name}')
             return
 
-        if self.handler is None:
-            self.logger.warning('No handler setup!')
-            return
         if message.content is None:
             self.logger.info('Message is None')
             return
-        msg = BasicMessage(message.content, user=message.author.name, unique_id=message.channel.id)
+        msg = BasicMessage(message.content, user=message.author.name, channel_id=message.channel.id, guild_id=message.guild.id)
         response = await self.handler.respond(msg)
         if response is not None:
             await message.channel.send(response)
@@ -80,9 +77,7 @@ class Commands(commands.Cog):
         :return: None
         """
         # TODO: Check for permissions
-        opts = None
-        if self.bot.handler is not None:
-            opts = await self.bot.handler.get_default_options()
+        opts = await self.bot.handler.get_default_options()
         msg = self.bot.config.add_channel(interaction.guild_id, channel.id, opts)
         await interaction.response.send_message(msg, ephemeral=True)  # noqa
 
@@ -99,6 +94,23 @@ class Commands(commands.Cog):
         for ch_id in self.bot.config.get_channels(interaction.guild_id):
             name_list.append(interaction.guild.get_channel(int(ch_id)).name)
         await interaction.response.send_message(', '.join(name_list), ephemeral=True)  # noqa
+
+    @app_commands.command(name='set-option', description='Set an option to give the generator. Fine tuning these can drastically change generator responses')
+    async def set_option(self, interaction: discord.Interaction, option: str, value: str):
+        msg = await self.bot.handler.set_option(option, value, interaction.guild_id, interaction.channel_id)
+        await interaction.response.send_message(msg, ephemeral=True)  # noqa
+
+    @set_option.autocomplete('option')
+    async def set_option_autocomplete(self,
+                                      interaction: discord.Interaction,
+                                      current: str
+                                      ) -> typing.List[app_commands.Choice[str]]:
+        options = await self.bot.handler.get_options()
+        choices = []
+        for opt in options:
+            if current in opt:
+                choices.append(app_commands.Choice(name=opt, value=opt))
+        return choices
 
     @app_commands.command(name='sync', description='Syncs the bots commands with the current guild, or globally if True.')
     @app_commands.rename(globally='global')

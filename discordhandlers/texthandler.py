@@ -133,7 +133,7 @@ class TextHandler(Handler):
         # Probably best done using an object as described in a different to-do
 
         self.config.set_active_option(guild_id, channel_id, option, value)
-        return None
+        return 'Option set'
 
     async def get_default_options(self) -> dict[str, typing.Any]:
         presets = self.api.presets
