@@ -321,6 +321,25 @@ class KoboldCppAPITests(IsolatedAsyncioTestCase):
             with self.assertRaises(ValueError):
                 response = await self.api.get_response_structured('test message', history, order)
 
+    async def test_empty_options(self):
+        with self.api_mock:
+            response = await self.api.get_response_structured('test message', [], [])
+
+            for key, value in KoboldAPI.PRESETS['Default'].items():
+                self.assertEqual(value, self.generate_params[key])
+
+    async def test_some_options(self):
+        with self.api_mock:
+            temp_opt = {
+                'temperature': 0.2,
+                'top_a': 1,
+                'sampler_seed': 234
+            }
+            response = await self.api.get_response_structured('test message', [], [], options=temp_opt)
+
+            for key, value in temp_opt.items():
+                self.assertEqual(value, self.generate_params[key])
+
 
 if __name__ == '__main__':
     unittest.main()

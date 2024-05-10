@@ -46,7 +46,7 @@ def main() -> None:
 
     mem = BasicMemoryFactory()
 
-    handler = TextHandler(api, {}, default_factory=mem)
+    handler = TextHandler(api, {}, default_factory=mem, config=config)
     handler.load()
 
     client = discordclient.DiscordClient(handler=handler,

@@ -10,15 +10,22 @@ class AbstractAPI(ABC):
     def options(self) -> dict[str, typing.Any]:
         pass
 
+    @property
     @abstractmethod
-    async def get_response(self, s: str, stop: typing.List[str] | None = None) -> str:
+    def presets(self) -> dict[str, dict[str, typing.Any]]:
+        pass
+
+    @abstractmethod
+    async def get_response(self, s: str, stop: typing.List[str] | None = None, options: dict[str, typing.Any] | None = None) -> str:
         pass
 
     @abstractmethod
     async def get_response_structured(self,
                                       message: str,
                                       history: typing.List[Message] | None = None,
-                                      indexes: typing.List[int] | None = None) -> str:
+                                      indexes: typing.List[int] | None = None,
+                                      *,
+                                      options: dict[str, typing.Any] | None = None) -> str:
         pass
 
     @abstractmethod

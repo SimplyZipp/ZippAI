@@ -23,10 +23,15 @@ class TestAPI(AbstractAPI):
 
     @property
     def options(self) -> dict[str, typing.Any]:
-        return {}
+        return {'test1': 'descript1', 'test2': 'descript2'}
+
+    @property
+    def presets(self) -> dict[str, dict[str, typing.Any]]:
+        return {'Default': {'test1': 1, 'test2': 0.5}}
 
     async def get_response_structured(self, message: str, history: typing.List[Message] | None = None,
-                                      indexes: typing.List[int] | None = None) -> str:
+                                      indexes: typing.List[int] | None = None,
+                                      options: dict[str, typing.Any] | None = None) -> str:
         if self._val_err:
             self._val_err = False
             raise ValueError('ValueError message')
@@ -43,7 +48,7 @@ class TestAPI(AbstractAPI):
     async def count_tokens(self, text: Message) -> int:
         return await self.sleep(len(text.content))
 
-    def get_response(self, s: str, stop: typing.List[str] | None = None) -> str:
+    def get_response(self, s: str, stop: typing.List[str] | None = None, options: dict[str, typing.Any] | None = None) -> str:
         # Method not directly used by TextHandler
         if self.blank:
             return s

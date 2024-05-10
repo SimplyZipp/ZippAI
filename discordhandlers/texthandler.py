@@ -2,6 +2,7 @@ import logging
 import asyncio
 import typing
 import json
+from configuration import Configuration
 from jsoncustom.memoryjson import MemoryEncoder, MemoryDecoder
 from AbstractAPI import AbstractAPI
 from discordhandlers.abstracthandler import BasicMessage
@@ -17,8 +18,10 @@ class TextHandler(Handler):
                  api: AbstractAPI,
                  memory_factory_lookup: dict[str, MemoryFactory],
                  *,
+                 config: Configuration,
                  default_factory: MemoryFactory = NoMemoryFactory):
         self.api = api
+        self.config = config
         self.logger = logging.getLogger(__name__)
         self.memory_factory_lookup = memory_factory_lookup  # Used to change a memory type at runtime
         self.memories: dict[str, MemoryAndLock] = {}
@@ -48,7 +51,8 @@ class TextHandler(Handler):
                 # Errors caught here and not inside the API because the messages shouldn't be saved
                 msg = await self.api.get_response_structured(message.content,
                                                              history=self.memory(message.id).log,
-                                                             indexes=self.memory(message.id).get_related_history(message.content))
+                                                             indexes=self.memory(message.id).get_related_history(message.content),
+                                                             options=self.config.get_active_options(message.guild_id, message.id))
             except ValueError as ex:
                 self.logger.error(repr(ex))
                 # Returned message doesn't use the error because this error shouldn't happen in the first place.
@@ -119,6 +123,21 @@ class TextHandler(Handler):
         """
         meml = self._mem_and_lock(memory_id)
         return meml.lock
+
+    async def get_options(self) -> typing.Iterable[str]:
+        return self.api.options.keys()
+
+    async def set_option(self, option: str, value: typing.Any, guild_id: int, channel_id: int) -> str | None:
+        # TODO: Validation
+        # Check for option validity and value validity depending on option
+        # Probably best done using an object as described in a different to-do
+
+        self.config.set_active_option(guild_id, channel_id, option, value)
+        return None
+
+    async def get_default_options(self) -> dict[str, typing.Any]:
+        presets = self.api.presets
+        return presets['Default'].copy()
 
     def save(self):
         self.logger.info('Saving memory')

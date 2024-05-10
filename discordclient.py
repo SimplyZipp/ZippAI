@@ -69,7 +69,8 @@ class Commands(commands.Cog):
         """
         self.bot = bot
 
-    @app_commands.command(name='add-channel')
+    @app_commands.command(name='add-channel', description='Add a channels the bot can listen to. Limited number per guild.')
+    @app_commands.default_permissions(manage_channels=True)
     async def add_channel(self, interaction: discord.Interaction, channel: discord.TextChannel) -> None:
         """
         Sets the bots active channel (one per guild). Guild and channel IDs are stored as strings
@@ -79,19 +80,29 @@ class Commands(commands.Cog):
         :return: None
         """
         # TODO: Check for permissions
-        msg = self.bot.config.add_channel(interaction.guild_id, channel.id)
+        opts = None
+        if self.bot.handler is not None:
+            opts = await self.bot.handler.get_default_options()
+        msg = self.bot.config.add_channel(interaction.guild_id, channel.id, opts)
         await interaction.response.send_message(msg, ephemeral=True)  # noqa
 
-    @app_commands.command(name='remove-channel')
+    @app_commands.command(name='remove-channel', description='Remove a channels from the bots allowed list.')
+    @app_commands.default_permissions(manage_channels=True)
     async def remove_channel(self, interaction: discord.Interaction, channel: discord.TextChannel) -> None:
         # TODO: Check for permissions
-        if self.bot.config.remove_channel(interaction.guild_id, channel.id):
-            await interaction.response.send_message(f'Removed channel ID {channel.id}', ephemeral=True)  # noqa
-        else:
-            await interaction.response.send_message('Channel hasn\'t been added', ephemeral=True)  # noqa
+        msg = self.bot.config.remove_channel(interaction.guild_id, channel.id)
+        await interaction.response.send_message(msg, ephemeral=True)  # noqa
 
-    @app_commands.command(name='sync')
+    @app_commands.command(name='channels', description='Return a list of channels the bot listens to.')
+    async def get_channels(self, interaction: discord.Interaction):
+        name_list: typing.List[str] = []
+        for ch_id in self.bot.config.get_channels(interaction.guild_id):
+            name_list.append(interaction.guild.get_channel(int(ch_id)).name)
+        await interaction.response.send_message(', '.join(name_list), ephemeral=True)  # noqa
+
+    @app_commands.command(name='sync', description='Syncs the bots commands with the current guild, or globally if True.')
     @app_commands.rename(globally='global')
+    @app_commands.default_permissions(manage_guild=True)
     async def sync_commands(self, interaction: discord.Interaction, globally: typing.Optional[bool] = False) -> None:
         """
         Syncs the bots commands with the *current guild, or globally if True.
@@ -103,14 +114,15 @@ class Commands(commands.Cog):
         :return: None
         """
         if str(interaction.user.id) != self.bot.config.options[Fields.Owner]:
+            await interaction.response.send_message('You must be the owner to sync globally.', ephemeral=True)  # noqa
             return
         if not globally:
-            guild = discord.Object(id=self.bot.config.get_dev_guild())
+            guild = interaction.guild  # discord.Object(id=self.bot.config.get_dev_guild())
             self.bot.tree.copy_global_to(guild=guild)
             message = 'Synced!'
         else:
             guild = None
-            message = 'Sent global sync request. Can take up to 24 hours to have an effect.'
+            message = 'Sent global sync request. Can take up to an hour to have an effect.'
         await self.bot.tree.sync(guild=guild)
         await interaction.response.send_message(message, ephemeral=True)  # noqa
 

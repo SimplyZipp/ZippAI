@@ -37,6 +37,7 @@ class Configuration:
         if gid in self.options[Fields.Guilds].keys():
             return
 
+        self.logger.info(f'Adding guild {guild_name} to config')
         self.options[Fields.Guilds][gid] = {
             'allowed_channel': None,
             'name': guild_name,
@@ -46,32 +47,53 @@ class Configuration:
     def get_channels(self, guild_id: int) -> dict[str, Any]:
         return self.options[Fields.Guilds][str(guild_id)]['channels']
 
-    def add_channel(self, guild_id: int, channel_id: int) -> str:
+    def channel(self, guild_id: int, channel_id: int) -> dict[str, Any]:
         channels: dict[str, Any] = self.get_channels(guild_id)
+        return channels[str(channel_id)]  # Could error, but shouldn't
 
-        if len(channels.keys()) >= self.options[Fields.MaxChannels]:
-            return 'Channel limit reached'
+    def add_channel(self, guild_id: int, channel_id: int, active_options: dict[str, Any] | None) -> str:
+        channels: dict[str, Any] = self.get_channels(guild_id)
 
         # Check if the channel already exists
         if channels.get(str(channel_id), None) is not None:
             return 'Channel already exists'
 
+        if len(channels.keys()) >= self.options[Fields.MaxChannels]:
+            return 'Channel limit reached'
+
+        if active_options is None:
+            active_options = {}
+
         # For now, don't catch invalid guild_ids because I want to know if it fails
-        channels[str(channel_id)] = {}
+        channels[str(channel_id)] = {
+            'active': active_options
+        }
         return f'Channel set to ID {channel_id}'
 
-    def remove_channel(self, guild_id: int, channel_id: int) -> bool:
+    def remove_channel(self, guild_id: int, channel_id: int) -> str:
         channels = self.get_channels(guild_id)
 
         if str(channel_id) not in channels:
-            return False
+            return 'Channel hasn\'t been added'
 
         del channels[str(channel_id)]
-        return True
+        return f'Removed channel ID {channel_id}'
 
     def channel_is_allowed(self, guild_id: int, channel_id: int) -> bool:
 
         return str(channel_id) in self.options[Fields.Guilds][str(guild_id)]['channels']
+
+    def get_active_options(self, guild_id: int, channel_id: int) -> dict[str, Any]:
+        channel = self.channel(guild_id, channel_id)
+        return channel['active']
+
+    def set_active_options(self, guild_id: int, channel_id: int, options: dict[str, Any]) -> None:
+        channel = self.channel(guild_id, channel_id)
+        channel['active'] = options
+
+    def set_active_option(self, guild_id: int, channel_id: int, option: str, value: Any) -> None:
+        channel = self.channel(guild_id, channel_id)
+        channel['active'][option] = value
 
     def get_dev_guild(self) -> int:
         return int(self.options[Fields.DevGuild])
@@ -89,13 +111,16 @@ class Configuration:
 
         self.logger.debug(str(self.options))
 
+        self._load_defaults()
+        # maybe save here since things might get added
+
+        self.verify_types()
+
+    def _load_defaults(self) -> None:
         for k, v in Configuration.DEFAULT_SETTINGS.items():
             value = self.options.get(k, None)
             if value is None:
                 self.options[k] = v
-        # maybe save here since things might get added
-
-        self.verify_types()
 
     def save(self, filename: str) -> None:
         self.logger.info(f'Saving configuration to file: {filename}')
